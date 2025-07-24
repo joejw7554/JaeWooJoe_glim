@@ -7,6 +7,7 @@
 #include "MFCApplication1.h"
 #include "MFCApplication1Dlg.h"
 #include "afxdialogex.h"
+#include <iostream>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,9 +17,18 @@
 
 //순서
 
-//#1
+//#1 O
 //클릭 했을 때 좌표 값 3개 까지 받고 콘솔창 출력하기 
 //이제 콘솔창에 받은 좌표를 이용해 원을 그리기
+
+
+//#2 O
+//입력창 Radius 값을 입력받고 ImageDrawDig 클래스에 데이터 전송 
+
+//#3 
+//점 3개를 이용하고 Radius 값을 이용해서 원을 그리기
+//비트이미지 경계 체크 확인
+
 
 
 
@@ -54,6 +64,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -63,6 +74,8 @@ END_MESSAGE_MAP()
 
 CMFCApplication1Dlg::CMFCApplication1Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCAPPLICATION1_DIALOG, pParent)
+	, CircleRadiusInputVal(3)
+	, CircleThicknessInputVal(3)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -70,6 +83,8 @@ CMFCApplication1Dlg::CMFCApplication1Dlg(CWnd* pParent /*=nullptr*/)
 void CMFCApplication1Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDITBOX_RADIUS, CircleRadiusInputVal);
+	DDX_Text(pDX, IDC_EDIT_THICKNESS, CircleThicknessInputVal);
 }
 
 BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
@@ -78,6 +93,9 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_RESET, &CMFCApplication1Dlg::OnBnClickedButtonReset)
 	ON_EN_CHANGE(IDC_EDITBOX_RADIUS, &CMFCApplication1Dlg::OnEnChangeEditboxRadius)
+	ON_EN_CHANGE(IDC_EDIT_THICKNESS, &CMFCApplication1Dlg::OnEnChangeEditThickness)
+	ON_WM_DESTROY()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -116,6 +134,11 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	ResultImage = new ImageDrawDig;
 	ResultImage->Create(IDD_ImageDrawDig, this);
 	ResultImage->ShowWindow(SW_SHOW);
+
+	ResultImage->SetCircleRadius(CircleRadiusInputVal);
+	ResultImage->SetLineThickness(CircleThicknessInputVal);
+
+	//ResultImage->Invalidate();
 
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -178,12 +201,33 @@ void CMFCApplication1Dlg::OnBnClickedButtonReset()
 
 void CMFCApplication1Dlg::OnEnChangeEditboxRadius()
 {
+    UpdateData(TRUE); // EditBox 값 읽기
+
+    if (ResultImage)
+        ResultImage->SetCircleRadius(CircleRadiusInputVal);
+}
+
+void CMFCApplication1Dlg::OnEnChangeEditThickness()
+{
 	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
 	// CDialogEx::OnInitDialog() 함수를 재지정 
 	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
 	// ENM_CHANGE가 있으면 마스크에 ORed를 플래그합니다.
 
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	UpdateData(TRUE); // EditBox 값 읽기
+
+	if (ResultImage)
+		ResultImage->SetLineThickness(CircleThicknessInputVal);
 }
 
 
+void CMFCApplication1Dlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+	if (ResultImage)
+		delete ResultImage;
+}

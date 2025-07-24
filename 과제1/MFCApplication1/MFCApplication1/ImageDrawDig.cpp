@@ -59,10 +59,9 @@ void ImageDrawDig::ImageInit()
 		rgb[i].rgbGreen = i;
 	}
 
-	Image.SetColorTable(0, 255, rgb);
-
+	Image.SetColorTable(0, 256, rgb);
 	unsigned char* fm = (unsigned char*)Image.GetBits();
-	memset(fm, 255, Width * Height);
+	memset(fm, WHITE, Width * Height);
 }
 
 void ImageDrawDig::OnPaint()
@@ -71,12 +70,9 @@ void ImageDrawDig::OnPaint()
 	Image.Draw(dc, 0, 0);
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	// 그리기 메시지에 대해서는 CDialogEx::OnPaint()을(를) 호출하지 마십시오.
-
-
 }
 
 
-#include <iostream>
 void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if (ClickCount < MAX_CLICKCOUNT)
@@ -84,13 +80,113 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 		Points[ClickCount] = point;
 		ClickCount++;
 		std::cout << point.x << ", " << point.y;
+		std::cout << std::endl;
+
+		DrawSmallCircle(point);
+		std::cout << "Radius: " << CircleRadius << std::endl;
+		std::cout << "Thickness: " << LineThickness << std::endl;
+
 	}
 
 	if (ClickCount == MAX_CLICKCOUNT)
 	{
-		//Request Draw Circle
+
+		DrawResultCircle();
+		std::cout << "Draw Complete" << std::endl;
 	}
 
 
 	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+void ImageDrawDig::DrawSmallCircle(const CPoint& point)
+{
+	int Width = Image.GetWidth();
+	int Height = Image.GetHeight();
+	int Pitch = Image.GetPitch();
+
+
+	unsigned char* fm = (unsigned char*)Image.GetBits();
+
+	for (int i = point.y - SmallCircleRadius; i <= point.y + SmallCircleRadius; i++)
+	{
+		for (int j = point.x - SmallCircleRadius; j <= point.x + SmallCircleRadius; j++)
+		{
+			int dx = j - point.x;
+			int dy = i - point.y;
+			if (dx * dx + dy * dy <= SmallCircleRadius * SmallCircleRadius)
+			{
+				fm[i * Pitch + j] = BLACK;
+			}
+		}
+	}
+
+	Invalidate();
+}
+
+void ImageDrawDig::DrawResultCircle()
+{
+	// 3개 점을 지나는 원의 중심 구하기
+	CPoint CircleCenter = GetCircleCenterCoordinate();
+
+
+	//원 그리는 과정
+	int Width = Image.GetWidth();
+	int Height = Image.GetHeight();
+	int Pitch = Image.GetPitch();
+
+	unsigned char* fm = (unsigned char*)Image.GetBits();
+
+
+	for (int i = 0; i < Height; i++)
+	{
+		for (int j = 0;  j < Width;  j++)
+		{
+			int Distance = sqrt(pow(j - CircleCenter.x, 2) + pow(i - CircleCenter.y, 2));
+
+			if (abs(Distance - CircleRadius) < LineThickness)
+			{
+				if (IsValidBit(j,i))
+				{
+					fm[i * Pitch + j] = BLACK;
+				}
+			}
+		}
+	}
+
+	Invalidate();
+}
+
+bool ImageDrawDig::IsValidBit(int x, int y)
+{
+	int Width = Image.GetWidth();
+	int Height = Image.GetHeight();
+
+	CRect rect(0, 0, Width, Height);
+
+	return rect.PtInRect(CPoint(x,y));
+}
+
+CPoint ImageDrawDig::GetCircleCenterCoordinate()
+{
+	int x1 = Points[0].x, y1 = Points[0].y;
+	int x2 = Points[1].x, y2 = Points[1].y;
+	int x3 = Points[2].x, y3 = Points[2].y;
+
+	float A = (float)x1 - x2;
+	float B = (float)y1 - y2;
+	float C = (float)x1 - x3;
+	float D = (float)y1 - y3;
+
+	float E =(float) (x1 * x1 - x2 * x2) + (y1 * y1 - y2 * y2);
+	float F =(float) (x1 * x1 - x3 * x3) + (y1 * y1 - y3 * y3);
+
+	float Det = 2.0 * (A * D - B * C);
+
+	float cx = (E * D - F * B) / Det;
+	float cy = (F * A - E * C) / Det;
+
+	CircleRadius = sqrt(pow(cx - x1, 2) + pow(cy - y1, 2));
+
+	return CPoint(cx, cy);
 }

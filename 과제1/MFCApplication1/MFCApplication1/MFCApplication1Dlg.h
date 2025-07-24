@@ -40,4 +40,9 @@ public:
 	afx_msg void OnBnClickedButtonReset();
 	afx_msg void OnEnChangeEditboxRadius();
 
+	int CircleRadiusInputVal;
+	afx_msg void OnEnChangeEditThickness();
+	int CircleThicknessInputVal;
+
+	afx_msg void OnDestroy();
 };
