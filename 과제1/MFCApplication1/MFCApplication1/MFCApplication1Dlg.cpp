@@ -25,12 +25,13 @@
 //#2 O
 //입력창 Radius 값을 입력받고 ImageDrawDig 클래스에 데이터 전송 
 
-//#3 
+//#3 O
 //점 3개를 이용하고 Radius 값을 이용해서 원을 그리기
 //비트이미지 경계 체크 확인
 
 
-
+//#4 
+//점 드래그 드랍 해서 다시 그려지는 기능 구현
 
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
@@ -137,9 +138,6 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 
 	ResultImage->SetCircleRadius(CircleRadiusInputVal);
 	ResultImage->SetLineThickness(CircleThicknessInputVal);
-
-	//ResultImage->Invalidate();
-
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }

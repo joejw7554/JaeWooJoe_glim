@@ -26,6 +26,9 @@ void ImageDrawDig::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(ImageDrawDig, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 
@@ -37,14 +40,14 @@ BOOL ImageDrawDig::OnInitDialog()
 	// TODO:  여기에 추가 초기화 작업을 추가합니다.
 
 	MoveWindow(0, 0, 640, 480);
-	ImageInit();
+	CreateImage();
 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
 }
 
-void ImageDrawDig::ImageInit()
+void ImageDrawDig::CreateImage()
 {
 	int Width = 640;
 	int Height = 480;
@@ -75,28 +78,43 @@ void ImageDrawDig::OnPaint()
 
 void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	if (ClickCount < MAX_CLICKCOUNT)
+	if (ClickCount < MAX_CLICKCOUNT) 
 	{
 		Points[ClickCount] = point;
 		ClickCount++;
+		DrawSmallCircle(point);
+
 		std::cout << point.x << ", " << point.y;
 		std::cout << std::endl;
 
-		DrawSmallCircle(point);
-		std::cout << "Radius: " << CircleRadius << std::endl;
-		std::cout << "Thickness: " << LineThickness << std::endl;
-
+		if (ClickCount == MAX_CLICKCOUNT) //3번쨰 클릭때 점3개를 지나는 원 그려
+		{
+			DrawResultCircle();
+			std::cout << "Draw Complete" << std::endl;
+			bDotMoveEnable = true;
+			std::cout << bDotMoveEnable << std::endl;
+		}
+		return;
 	}
 
-	if (ClickCount == MAX_CLICKCOUNT)
+	if (bDotMoveEnable)
 	{
+		for (int i = 0; i < MAX_DOTS; i++)
+		{
+			int DebugResult = GetDistance(point.x, Points[i].x, point.y, Points[i].y);
 
-		DrawResultCircle();
-		std::cout << "Draw Complete" << std::endl;
+			if (GetDistance(point.x, Points[i].x, point.y, Points[i].y) < SelectTolerance) 
+			{
+				SelectedDotIndex = i;
+				std::cout << "you Selected: " << Points[SelectedDotIndex].x << ", " << Points[SelectedDotIndex].y << " Dot" << std::endl;
+				break;
+			}
+		}
 	}
-
 
 	CDialogEx::OnLButtonDown(nFlags, point);
+
+
 }
 
 void ImageDrawDig::DrawSmallCircle(const CPoint& point)
@@ -104,7 +122,6 @@ void ImageDrawDig::DrawSmallCircle(const CPoint& point)
 	int Width = Image.GetWidth();
 	int Height = Image.GetHeight();
 	int Pitch = Image.GetPitch();
-
 
 	unsigned char* fm = (unsigned char*)Image.GetBits();
 
@@ -114,9 +131,12 @@ void ImageDrawDig::DrawSmallCircle(const CPoint& point)
 		{
 			int dx = j - point.x;
 			int dy = i - point.y;
-			if (dx * dx + dy * dy <= SmallCircleRadius * SmallCircleRadius)
+			if (dx * dx + dy * dy <= SmallCircleRadius * SmallCircleRadius) //??
 			{
-				fm[i * Pitch + j] = BLACK;
+				if (IsValidBit(i, j))
+				{
+					fm[i * Pitch + j] = BLACK;
+				}
 			}
 		}
 	}
@@ -128,7 +148,6 @@ void ImageDrawDig::DrawResultCircle()
 {
 	// 3개 점을 지나는 원의 중심 구하기
 	CPoint CircleCenter = GetCircleCenterCoordinate();
-
 
 	//원 그리는 과정
 	int Width = Image.GetWidth();
@@ -142,7 +161,7 @@ void ImageDrawDig::DrawResultCircle()
 	{
 		for (int j = 0;  j < Width;  j++)
 		{
-			int Distance = sqrt(pow(j - CircleCenter.x, 2) + pow(i - CircleCenter.y, 2));
+			int Distance = GetDistance(j, CircleCenter.x, i, CircleCenter.y);
 
 			if (abs(Distance - CircleRadius) < LineThickness)
 			{
@@ -155,6 +174,12 @@ void ImageDrawDig::DrawResultCircle()
 	}
 
 	Invalidate();
+}
+
+void ImageDrawDig::AdjustDotLoction(const CPoint& CursorLocation)
+{
+	Points[SelectedDotIndex].SetPoint(CursorLocation.x, CursorLocation.y);
+	DrawResultCircle();
 }
 
 bool ImageDrawDig::IsValidBit(int x, int y)
@@ -186,7 +211,54 @@ CPoint ImageDrawDig::GetCircleCenterCoordinate()
 	float cx = (E * D - F * B) / Det;
 	float cy = (F * A - E * C) / Det;
 
-	CircleRadius = sqrt(pow(cx - x1, 2) + pow(cy - y1, 2));
+	CircleRadius = GetDistance(cx, x1, cy, y1);
 
 	return CPoint(cx, cy);
+}
+
+double ImageDrawDig::GetDistance(float x1, int x2, float y1, int y2)
+{
+	return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+}
+
+
+
+void ImageDrawDig::OnMouseMove(UINT nFlags, CPoint point)
+{
+    if (bDotMoveEnable && SelectedDotIndex != -1 && (nFlags & MK_LBUTTON))
+    {
+
+		int Width = Image.GetWidth();
+		int Height = Image.GetHeight();
+		unsigned char* fm = (unsigned char*)Image.GetBits();
+
+        // 점 위치 갱신
+        Points[SelectedDotIndex] = point;
+
+        // 이미지 초기화
+		memset(fm, WHITE,Width * Height);
+
+        // 모든 점 다시 그림
+        for (int i = 0; i < MAX_CLICKCOUNT; i++)
+            DrawSmallCircle(Points[i]);
+
+        // 원 다시 그림
+        DrawResultCircle();
+
+        // 화면 갱신
+        Invalidate();
+    }
+
+
+    CDialogEx::OnMouseMove(nFlags, point);
+}
+
+
+void ImageDrawDig::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	DrawSmallCircle(Points[SelectedDotIndex]);
+
+
+
+    CDialogEx::OnLButtonUp(nFlags, point);
 }

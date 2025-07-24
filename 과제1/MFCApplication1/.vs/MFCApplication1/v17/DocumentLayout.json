@@ -13,6 +13,9 @@
     {
       "AbsoluteMoniker": "D:0:0:{506CCC2D-492C-36B3-31A1-B53C89205E39}|MFCApplication1\\MFCApplication1.vcxproj|C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\MFCApplication1\\MFCApplication1Dlg.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{506CCC2D-492C-36B3-31A1-B53C89205E39}|MFCApplication1\\MFCApplication1.vcxproj|solutionrelative:MFCApplication1\\MFCApplication1Dlg.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\atlmfc\\include\\atlimage.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,8 +25,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "atlimage.h",
+              "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\atlmfc\\include\\atlimage.h",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\atlmfc\\include\\atlimage.h",
+              "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\atlmfc\\include\\atlimage.h",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\atlmfc\\include\\atlimage.h",
+              "ViewState": "AgIAAPMCAAAAAAAAAADgvwkDAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-24T13:31:53.976Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
@@ -32,7 +48,7 @@
               "RelativeDocumentMoniker": "MFCApplication1\\MFCApplication1Dlg.cpp",
               "ToolTip": "C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\MFCApplication1\\MFCApplication1Dlg.cpp",
               "RelativeToolTip": "MFCApplication1\\MFCApplication1Dlg.cpp",
-              "ViewState": "AgIAAMAAAAAAAAAAAAAAAFsAAAAOAAAAAAAAAA==",
+              "ViewState": "AgIAAHUAAAAAAAAAAAAAAIwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-07-24T06:52:21.371Z",
               "EditorCaption": ""
@@ -45,7 +61,7 @@
               "RelativeDocumentMoniker": "MFCApplication1\\ImageDrawDig.cpp",
               "ToolTip": "C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\MFCApplication1\\ImageDrawDig.cpp",
               "RelativeToolTip": "MFCApplication1\\ImageDrawDig.cpp",
-              "ViewState": "AgIAAHcAAAAAAAAAAAAAAEIAAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAJ4AAAAAAAAAAAAAAMYAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-07-24T06:44:07.034Z",
               "EditorCaption": ""
@@ -58,7 +74,7 @@
               "RelativeDocumentMoniker": "MFCApplication1\\ImageDrawDig.h",
               "ToolTip": "C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\MFCApplication1\\ImageDrawDig.h",
               "RelativeToolTip": "MFCApplication1\\ImageDrawDig.h",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAACoAAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAAC4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-07-24T06:03:03.526Z",
               "EditorCaption": ""
