@@ -1,7 +1,7 @@
 ﻿
 // MFCApplication1Dlg.h: 헤더 파일
 //
-
+#include "ImageDrawDig.h"
 #pragma once
 
 
@@ -11,6 +11,8 @@ class CMFCApplication1Dlg : public CDialogEx
 // 생성입니다.
 public:
 	CMFCApplication1Dlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
+
+	ImageDrawDig* ResultImage;
 
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
@@ -31,4 +33,11 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+	int ClickCount = 0;
+
+public:
+	afx_msg void OnBnClickedButtonReset();
+	afx_msg void OnEnChangeEditboxRadius();
+
 };

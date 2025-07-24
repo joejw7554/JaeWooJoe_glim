@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{506CCC2D-492C-36B3-31A1-B53C89205E39}|MFCApplication1\\MFCApplication1.vcxproj|C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\MFCApplication1\\MFCApplication1Dlg.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{506CCC2D-492C-36B3-31A1-B53C89205E39}|MFCApplication1\\MFCApplication1.vcxproj|solutionrelative:MFCApplication1\\MFCApplication1Dlg.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MFCApplication1Dlg.cpp",
+              "DocumentMoniker": "C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\MFCApplication1\\MFCApplication1Dlg.cpp",
+              "RelativeDocumentMoniker": "MFCApplication1\\MFCApplication1Dlg.cpp",
+              "ToolTip": "C:\\Users\\joejw\\Desktop\\JaeWooJoe_glim\\\uACFC\uC81C1\\MFCApplication1\\MFCApplication1\\MFCApplication1Dlg.cpp",
+              "RelativeToolTip": "MFCApplication1\\MFCApplication1Dlg.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-24T02:09:31.391Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
