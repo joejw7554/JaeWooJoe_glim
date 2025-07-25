@@ -60,10 +60,10 @@ void ImageDrawDig::ResetProcess()
 	}
 	ClickCount = 0;
 
-	for (int i = 1; i <= MAX_CLICKCOUNT+1; ++i)
+	for (int i = 0; i < MAX_CLICKCOUNT + 1; ++i)
 	{
 		CString str;
-		str.Format(_T("Dot%d Coordinate:",), i );
+		str.Format(_T("Dot%d Coordinate:", ), i + 1);
 		int id = IDC_STATIC_DOT1 + i; // 연속된 ID라면 가능
 		Parent->SetDlgItemTextW(id, str);
 	}
@@ -119,7 +119,7 @@ void ImageDrawDig::OnPaint()
 
 void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	if (ClickCount < MAX_CLICKCOUNT) 
+	if (ClickCount < MAX_CLICKCOUNT)
 	{
 		Points[ClickCount] = point;
 		ClickCount++;
@@ -130,7 +130,6 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 		std::cout << point.x << ", " << point.y;
 		std::cout << std::endl;
 
-		UpdateUI(point);
 
 
 		if (ClickCount == MAX_CLICKCOUNT) //3번쨰 클릭때 점3개를 지나는 원 그려
@@ -142,7 +141,7 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 		}
 		return;
 	}
-	
+
 	if (ClickCount == MAX_CLICKCOUNT)
 	{
 		bDotMoveEnable = true;
@@ -155,7 +154,7 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 		{
 			int DebugResult = GetDistance(point.x, Points[i].x, point.y, Points[i].y);
 
-			if (GetDistance(point.x, Points[i].x, point.y, Points[i].y) < SelectTolerance) 
+			if (GetDistance(point.x, Points[i].x, point.y, Points[i].y) < SelectTolerance)
 			{
 				SelectedDotIndex = i;
 				std::cout << "you Selected: " << Points[SelectedDotIndex].x << ", " << Points[SelectedDotIndex].y << " Dot" << std::endl;
@@ -169,7 +168,7 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 
 }
 
-void ImageDrawDig::UpdateUI(CPoint& point)
+void ImageDrawDig::UpdateUI(const CPoint& point)
 {
 	if (Parent)
 	{
@@ -185,7 +184,8 @@ void ImageDrawDig::UpdateUI(CPoint& point)
 
 void ImageDrawDig::DrawSmallCircle(const CPoint& point, int InColor)
 {
-	
+
+	UpdateUI(point);
 
 	int Width = Image.GetWidth();
 	int Height = Image.GetHeight();
@@ -199,7 +199,7 @@ void ImageDrawDig::DrawSmallCircle(const CPoint& point, int InColor)
 		{
 			int dx = j - point.x;
 			int dy = i - point.y;
-			if (dx * dx + dy * dy <= SmallCircleRadius * SmallCircleRadius) 
+			if (dx * dx + dy * dy <= SmallCircleRadius * SmallCircleRadius)
 			{
 				if (IsValidBit(j, i))
 				{
@@ -226,13 +226,13 @@ void ImageDrawDig::DrawResultCircle(int InColor)
 
 	for (int i = 0; i < Height; i++)
 	{
-		for (int j = 0;  j < Width;  j++)
+		for (int j = 0; j < Width; j++)
 		{
 			int Distance = GetDistance(j, CircleCenter.x, i, CircleCenter.y);
 
 			if (abs(Distance - CircleRadius) < LineThickness)
 			{
-				if (IsValidBit(j,i))
+				if (IsValidBit(j, i))
 				{
 					fm[i * Pitch + j] = InColor;
 				}
@@ -254,7 +254,7 @@ bool ImageDrawDig::IsValidBit(int x, int y)
 
 	CRect rect(0, 0, Width, Height);
 
-	return rect.PtInRect(CPoint(x,y));
+	return rect.PtInRect(CPoint(x, y));
 }
 
 CPoint ImageDrawDig::GetCircleCenterCoordinate()
@@ -268,8 +268,8 @@ CPoint ImageDrawDig::GetCircleCenterCoordinate()
 	int C = x1 - x3;
 	int D = y1 - y3;
 
-	int E =(x1 * x1 - x2 * x2) +  (y1 * y1 - y2 * y2);
-	int F =(x1 * x1 - x3 * x3) + (y1 * y1 - y3 * y3);
+	int E = (x1 * x1 - x2 * x2) + (y1 * y1 - y2 * y2);
+	int F = (x1 * x1 - x3 * x3) + (y1 * y1 - y3 * y3);
 
 	int Det = 2 * (A * D - B * C);
 
@@ -289,21 +289,21 @@ int ImageDrawDig::GetDistance(int x1, int x2, int y1, int y2)
 void ImageDrawDig::OnMouseMove(UINT nFlags, CPoint point)
 {
 
-    if (bDotMoveEnable && SelectedDotIndex != -1 ) //&& (nFlags & MK_LBUTTON)
-    {
+	if (bDotMoveEnable && SelectedDotIndex != -1) 
+	{
 		//원으로 그렸던 부분만 다시 하양색으로 지우기
 		EraseCircle();
 
 		//선택한 점위치 갱신후 다시 그리기
-        Points[SelectedDotIndex] = point;
+		Points[SelectedDotIndex] = point;
 
 		RedrawCircle();
 
 		Invalidate();
-    }
+	}
 
 
-    CDialogEx::OnMouseMove(nFlags, point);
+	CDialogEx::OnMouseMove(nFlags, point);
 }
 
 void ImageDrawDig::RedrawCircle()
@@ -340,9 +340,9 @@ void ImageDrawDig::MakeImageWhite()
 void ImageDrawDig::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	DrawSmallCircle(Points[SelectedDotIndex], BLACK);
-	
+
 	bDotMoveEnable = false;
 	SelectedDotIndex = -1;
 
-    CDialogEx::OnLButtonUp(nFlags, point);
+	CDialogEx::OnLButtonUp(nFlags, point);
 }
