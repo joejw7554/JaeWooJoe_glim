@@ -2,6 +2,8 @@
 #include "MFCApplication1.h"
 #include "afxdialogex.h"
 #include "ImageDrawDig.h"
+#include "MFCApplication1Dlg.h"
+
 
 
 
@@ -10,7 +12,7 @@ IMPLEMENT_DYNAMIC(ImageDrawDig, CDialogEx)
 ImageDrawDig::ImageDrawDig(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_ImageDrawDig, pParent)
 {
-	Parent = pParent;
+	Parent = (CMFCApplication1Dlg*)pParent;
 }
 
 ImageDrawDig::~ImageDrawDig()
@@ -47,6 +49,46 @@ BOOL ImageDrawDig::OnInitDialog()
 	// 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
 }
 
+void ImageDrawDig::ResetProcess()
+{
+	MakeImageWhite();
+
+	for (CPoint& point : Points)
+	{
+		point.x = 0;
+		point.y = 0;
+	}
+	ClickCount = 0;
+
+	for (int i = 1; i <= MAX_CLICKCOUNT+1; ++i)
+	{
+		CString str;
+		str.Format(_T("Dot%d Coordinate:",), i );
+		int id = IDC_STATIC_DOT1 + i; // 연속된 ID라면 가능
+		Parent->SetDlgItemTextW(id, str);
+	}
+
+}
+
+void ImageDrawDig::GenerateRandomDots()
+{
+	if (ClickCount < 3) return;
+
+	EraseCircle();
+
+	int Width = Image.GetWidth();
+	int Height = Image.GetHeight();
+
+	for (CPoint& point : Points)
+	{
+		point.x = rand() % Width;
+		point.y = rand() % Height;
+		DrawSmallCircle(point, BLACK);
+	}
+
+	DrawResultCircle(BLACK);
+}
+
 void ImageDrawDig::CreateImage()
 {
 	int Width = 640;
@@ -63,8 +105,7 @@ void ImageDrawDig::CreateImage()
 	}
 
 	Image.SetColorTable(0, 256, rgb);
-	unsigned char* fm = (unsigned char*)Image.GetBits();
-	memset(fm, WHITE, Width * Height);
+	MakeImageWhite();
 }
 
 void ImageDrawDig::OnPaint()
@@ -82,20 +123,31 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		Points[ClickCount] = point;
 		ClickCount++;
-		DrawSmallCircle(point);
+		DrawSmallCircle(point, BLACK);
 
+
+		Invalidate();
 		std::cout << point.x << ", " << point.y;
 		std::cout << std::endl;
 
+		UpdateUI(point);
+
+
 		if (ClickCount == MAX_CLICKCOUNT) //3번쨰 클릭때 점3개를 지나는 원 그려
 		{
-			DrawResultCircle();
+			DrawResultCircle(BLACK);
 			std::cout << "Draw Complete" << std::endl;
 			bDotMoveEnable = true;
 			std::cout << bDotMoveEnable << std::endl;
 		}
 		return;
 	}
+	
+	if (ClickCount == MAX_CLICKCOUNT)
+	{
+		bDotMoveEnable = true;
+	}
+
 
 	if (bDotMoveEnable)
 	{
@@ -117,8 +169,24 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 
 }
 
-void ImageDrawDig::DrawSmallCircle(const CPoint& point)
+void ImageDrawDig::UpdateUI(CPoint& point)
 {
+	if (Parent)
+	{
+		for (int i = 0; i < ClickCount; ++i)
+		{
+			CString str;
+			str.Format(_T("Dot%d Coordinate: (%d, %d)"), i + 1, Points[i].x, Points[i].y);
+			int id = IDC_STATIC_DOT1 + i; // 연속된 ID라면 가능
+			Parent->SetDlgItemTextW(id, str);
+		}
+	}
+}
+
+void ImageDrawDig::DrawSmallCircle(const CPoint& point, int InColor)
+{
+	
+
 	int Width = Image.GetWidth();
 	int Height = Image.GetHeight();
 	int Pitch = Image.GetPitch();
@@ -131,20 +199,19 @@ void ImageDrawDig::DrawSmallCircle(const CPoint& point)
 		{
 			int dx = j - point.x;
 			int dy = i - point.y;
-			if (dx * dx + dy * dy <= SmallCircleRadius * SmallCircleRadius) //??
+			if (dx * dx + dy * dy <= SmallCircleRadius * SmallCircleRadius) 
 			{
-				if (IsValidBit(i, j))
+				if (IsValidBit(j, i))
 				{
-					fm[i * Pitch + j] = BLACK;
+					fm[i * Pitch + j] = InColor;
 				}
 			}
 		}
 	}
 
-	Invalidate();
 }
 
-void ImageDrawDig::DrawResultCircle()
+void ImageDrawDig::DrawResultCircle(int InColor)
 {
 	// 3개 점을 지나는 원의 중심 구하기
 	CPoint CircleCenter = GetCircleCenterCoordinate();
@@ -167,19 +234,17 @@ void ImageDrawDig::DrawResultCircle()
 			{
 				if (IsValidBit(j,i))
 				{
-					fm[i * Pitch + j] = BLACK;
+					fm[i * Pitch + j] = InColor;
 				}
 			}
 		}
 	}
-
-	Invalidate();
 }
 
 void ImageDrawDig::AdjustDotLoction(const CPoint& CursorLocation)
 {
 	Points[SelectedDotIndex].SetPoint(CursorLocation.x, CursorLocation.y);
-	DrawResultCircle();
+	DrawResultCircle(BLACK);
 }
 
 bool ImageDrawDig::IsValidBit(int x, int y)
@@ -198,67 +263,86 @@ CPoint ImageDrawDig::GetCircleCenterCoordinate()
 	int x2 = Points[1].x, y2 = Points[1].y;
 	int x3 = Points[2].x, y3 = Points[2].y;
 
-	float A = (float)x1 - x2;
-	float B = (float)y1 - y2;
-	float C = (float)x1 - x3;
-	float D = (float)y1 - y3;
+	int A = x1 - x2;
+	int B = y1 - y2;
+	int C = x1 - x3;
+	int D = y1 - y3;
 
-	float E =(float) (x1 * x1 - x2 * x2) + (y1 * y1 - y2 * y2);
-	float F =(float) (x1 * x1 - x3 * x3) + (y1 * y1 - y3 * y3);
+	int E =(x1 * x1 - x2 * x2) +  (y1 * y1 - y2 * y2);
+	int F =(x1 * x1 - x3 * x3) + (y1 * y1 - y3 * y3);
 
-	float Det = 2.0 * (A * D - B * C);
+	int Det = 2 * (A * D - B * C);
 
-	float cx = (E * D - F * B) / Det;
-	float cy = (F * A - E * C) / Det;
+	int cx = (E * D - F * B) / Det;
+	int cy = (F * A - E * C) / Det;
 
 	CircleRadius = GetDistance(cx, x1, cy, y1);
 
 	return CPoint(cx, cy);
 }
 
-double ImageDrawDig::GetDistance(float x1, int x2, float y1, int y2)
+int ImageDrawDig::GetDistance(int x1, int x2, int y1, int y2)
 {
-	return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+	return (int)sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
 }
-
-
 
 void ImageDrawDig::OnMouseMove(UINT nFlags, CPoint point)
 {
-    if (bDotMoveEnable && SelectedDotIndex != -1 && (nFlags & MK_LBUTTON))
+
+    if (bDotMoveEnable && SelectedDotIndex != -1 ) //&& (nFlags & MK_LBUTTON)
     {
+		//원으로 그렸던 부분만 다시 하양색으로 지우기
+		EraseCircle();
 
-		int Width = Image.GetWidth();
-		int Height = Image.GetHeight();
-		unsigned char* fm = (unsigned char*)Image.GetBits();
-
-        // 점 위치 갱신
+		//선택한 점위치 갱신후 다시 그리기
         Points[SelectedDotIndex] = point;
 
-        // 이미지 초기화
-		memset(fm, WHITE,Width * Height);
+		RedrawCircle();
 
-        // 모든 점 다시 그림
-        for (int i = 0; i < MAX_CLICKCOUNT; i++)
-            DrawSmallCircle(Points[i]);
-
-        // 원 다시 그림
-        DrawResultCircle();
-
-        // 화면 갱신
-        Invalidate();
+		Invalidate();
     }
 
 
     CDialogEx::OnMouseMove(nFlags, point);
 }
 
+void ImageDrawDig::RedrawCircle()
+{
+	for (int i = 0; i < MAX_CLICKCOUNT; i++) //작은 원 그리기
+	{
+		DrawSmallCircle(Points[i], BLACK);
+	}
+
+	DrawResultCircle(BLACK); //큰 원 그리기
+}
+
+void ImageDrawDig::EraseCircle()
+{
+	DrawResultCircle(WHITE); //큰 원 없애기
+
+	for (int i = 0; i < MAX_CLICKCOUNT; i++) //작은 원 없애기
+	{
+		DrawSmallCircle(Points[i], WHITE);
+	}
+}
+
+void ImageDrawDig::MakeImageWhite()
+{
+	int Width = Image.GetWidth();
+	int Height = Image.GetHeight();
+
+	unsigned char* fm = (unsigned char*)Image.GetBits();
+
+	memset(fm, WHITE, Width * Height);
+}
+
 
 void ImageDrawDig::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	DrawSmallCircle(Points[SelectedDotIndex]);
-
-
+	DrawSmallCircle(Points[SelectedDotIndex], BLACK);
+	
+	bDotMoveEnable = false;
+	SelectedDotIndex = -1;
 
     CDialogEx::OnLButtonUp(nFlags, point);
 }

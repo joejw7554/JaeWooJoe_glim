@@ -3,6 +3,7 @@
 #include <iostream>
 
 
+
 #define MAX_CLICKCOUNT 3
 #define MAX_DOTS 3
 #define BLACK 0
@@ -14,7 +15,7 @@ class ImageDrawDig : public CDialogEx
 	DECLARE_DYNAMIC(ImageDrawDig)
 
 public:
-	CWnd* Parent;
+	class CMFCApplication1Dlg* Parent;
 	CImage Image;
 
 
@@ -35,7 +36,9 @@ public:
 	afx_msg void OnPaint();
 
 	void SetCircleRadius(int InValue) { CircleRadius = InValue; }
-	void SetLineThickness(int InValue) { LineThickness = InValue; }
+	void SetLineThickness(int InValue) { LineThickness = InValue;  SmallCircleRadius = LineThickness + 20; }
+	void ResetProcess();
+	void GenerateRandomDots();
 
 private:
 	void CreateImage();
@@ -55,19 +58,23 @@ private:
 	int ClickCount = 0;
 	CPoint Points[3];
 
-	void DrawSmallCircle(const CPoint& point);
-	void DrawResultCircle();
+	void DrawSmallCircle(const CPoint& point, int InColor);
+	void DrawResultCircle(int InColor);
 	void AdjustDotLoction(const CPoint& CursorLocation);
 
 	bool IsValidBit(int x, int y);
 
 	CPoint GetCircleCenterCoordinate();
 
-	double GetDistance(float cx, int x1, float cy, int y1);
+	int GetDistance(int cx, int x1, int cy, int y1);
+	void MakeImageWhite();
+	void RedrawCircle();
+	void EraseCircle();
 
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-public:
-	
+
+
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	void UpdateUI(CPoint& point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };

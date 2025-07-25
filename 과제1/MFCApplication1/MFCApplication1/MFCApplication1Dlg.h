@@ -45,4 +45,5 @@ public:
 	int CircleThicknessInputVal;
 
 	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedButtonRandom();
 };

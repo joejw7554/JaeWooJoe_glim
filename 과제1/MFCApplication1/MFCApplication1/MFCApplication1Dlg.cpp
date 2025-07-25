@@ -97,6 +97,7 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_THICKNESS, &CMFCApplication1Dlg::OnEnChangeEditThickness)
 	ON_WM_DESTROY()
 	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON_RANDOM, &CMFCApplication1Dlg::OnBnClickedButtonRandom)
 END_MESSAGE_MAP()
 
 
@@ -132,12 +133,13 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-	ResultImage = new ImageDrawDig;
+	ResultImage = new ImageDrawDig(this);
 	ResultImage->Create(IDD_ImageDrawDig, this);
 	ResultImage->ShowWindow(SW_SHOW);
 
 	ResultImage->SetCircleRadius(CircleRadiusInputVal);
 	ResultImage->SetLineThickness(CircleThicknessInputVal);
+
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -195,6 +197,16 @@ HCURSOR CMFCApplication1Dlg::OnQueryDragIcon()
 void CMFCApplication1Dlg::OnBnClickedButtonReset()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	ResultImage->ResetProcess();
+	ResultImage->Invalidate();
+}
+
+void CMFCApplication1Dlg::OnBnClickedButtonRandom()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	ResultImage->GenerateRandomDots();
+	ResultImage->Invalidate();
 }
 
 void CMFCApplication1Dlg::OnEnChangeEditboxRadius()
@@ -229,3 +241,4 @@ void CMFCApplication1Dlg::OnDestroy()
 	if (ResultImage)
 		delete ResultImage;
 }
+
