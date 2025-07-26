@@ -3,9 +3,10 @@
 #include "afxdialogex.h"
 #include "ImageDrawDig.h"
 #include "MFCApplication1Dlg.h"
+#include <thread>
+#include <chrono>
 
-
-
+using namespace std;
 
 IMPLEMENT_DYNAMIC(ImageDrawDig, CDialogEx)
 
@@ -85,8 +86,8 @@ void ImageDrawDig::GenerateRandomDots()
 		point.y = rand() % Height;
 		DrawSmallCircle(point, BLACK);
 	}
-
-	DrawResultCircle(BLACK);
+	
+	MultiThreadProcess(BLACK);
 }
 
 void ImageDrawDig::CreateImage()
@@ -116,7 +117,6 @@ void ImageDrawDig::OnPaint()
 	// 그리기 메시지에 대해서는 CDialogEx::OnPaint()을(를) 호출하지 마십시오.
 }
 
-
 void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if (ClickCount < MAX_CLICKCOUNT)
@@ -127,17 +127,19 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 
 
 		Invalidate();
-		std::cout << point.x << ", " << point.y;
-		std::cout << std::endl;
+		cout << point.x << ", " << point.y;
+		cout << endl;
 
 
 
 		if (ClickCount == MAX_CLICKCOUNT) //3번쨰 클릭때 점3개를 지나는 원 그려
 		{
-			DrawResultCircle(BLACK);
-			std::cout << "Draw Complete" << std::endl;
+			//DrawResultCircle(BLACK);
+			MultiThreadProcess(BLACK);
+
+			cout << "Draw Complete" << endl;
 			bDotMoveEnable = true;
-			std::cout << bDotMoveEnable << std::endl;
+			cout << bDotMoveEnable << endl;
 		}
 		return;
 	}
@@ -157,7 +159,7 @@ void ImageDrawDig::OnLButtonDown(UINT nFlags, CPoint point)
 			if (GetDistance(point.x, Points[i].x, point.y, Points[i].y) < SelectTolerance)
 			{
 				SelectedDotIndex = i;
-				std::cout << "you Selected: " << Points[SelectedDotIndex].x << ", " << Points[SelectedDotIndex].y << " Dot" << std::endl;
+				cout << "you Selected: " << Points[SelectedDotIndex].x << ", " << Points[SelectedDotIndex].y << " Dot" << endl;
 				break;
 			}
 		}
@@ -216,7 +218,7 @@ void ImageDrawDig::DrawResultCircle(int InColor)
 	// 3개 점을 지나는 원의 중심 구하기
 	CPoint CircleCenter = GetCircleCenterCoordinate();
 
-	//원 그리는 과정
+	/////////////////////////원 그리는 과정
 	int Width = Image.GetWidth();
 	int Height = Image.GetHeight();
 	int Pitch = Image.GetPitch();
@@ -241,11 +243,43 @@ void ImageDrawDig::DrawResultCircle(int InColor)
 	}
 }
 
+void ImageDrawDig::DrawResultCircle(int InColor, CRect InRect)
+{
+	// 3개 점을 지나는 원의 중심 구하기
+	CPoint CircleCenter = GetCircleCenterCoordinate();
+
+	/////////////////////////원 그리는 과정
+
+	int Pitch = Image.GetPitch();
+
+	unsigned char* fm = (unsigned char*)Image.GetBits();
+
+
+	for (int i = InRect.top; i < InRect.bottom; i++)
+	{
+		for (int j = InRect.left; j < InRect.right; j++)
+		{
+			int Distance = GetDistance(j, CircleCenter.x, i, CircleCenter.y);
+
+			if (abs(Distance - CircleRadius) < LineThickness)
+			{
+				if (IsValidBit(j, i))
+				{
+					fm[i * Pitch + j] = InColor;
+				}
+			}
+		}
+	}
+}
+
 void ImageDrawDig::AdjustDotLoction(const CPoint& CursorLocation)
 {
 	Points[SelectedDotIndex].SetPoint(CursorLocation.x, CursorLocation.y);
-	DrawResultCircle(BLACK);
+	//DrawResultCircle(BLACK);
+	MultiThreadProcess(BLACK);
 }
+
+
 
 bool ImageDrawDig::IsValidBit(int x, int y)
 {
@@ -303,6 +337,7 @@ void ImageDrawDig::OnMouseMove(UINT nFlags, CPoint point)
 	}
 
 
+
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
@@ -313,17 +348,50 @@ void ImageDrawDig::RedrawCircle()
 		DrawSmallCircle(Points[i], BLACK);
 	}
 
-	DrawResultCircle(BLACK); //큰 원 그리기
+	//DrawResultCircle(BLACK); //큰 원 그리기
+	MultiThreadProcess(BLACK);
 }
 
 void ImageDrawDig::EraseCircle()
 {
-	DrawResultCircle(WHITE); //큰 원 없애기
+	MultiThreadProcess(WHITE); //큰 원 없애기
 
 	for (int i = 0; i < MAX_CLICKCOUNT; i++) //작은 원 없애기
 	{
 		DrawSmallCircle(Points[i], WHITE);
 	}
+}
+
+void ThreadProcess(CWnd* Parent, int InColor, CRect Rect)
+{
+   ImageDrawDig* pDlg = static_cast<ImageDrawDig*>(Parent);
+
+    pDlg->DrawResultCircle(InColor, Rect);
+}
+
+void ImageDrawDig::MultiThreadProcess(int InColor)
+{
+	int Width = Image.GetWidth();
+	int Height = Image.GetHeight();
+
+	int halfW = Width / 2;
+	int halfH = Height / 2;
+	CRect rt[4] = 
+	{
+		 CRect(0, 0, halfW, halfH), CRect(halfW, 0, Width, halfH),
+		 CRect(0, halfH, halfW, Height),CRect(halfW, halfH, Width, Height)
+	};
+
+	thread Thread0(ThreadProcess, this, InColor, rt[0]);
+	thread Thread1(ThreadProcess, this, InColor, rt[1]);
+	thread Thread2(ThreadProcess, this, InColor, rt[2]);
+	thread Thread3(ThreadProcess, this, InColor, rt[3]);
+
+
+	Thread0.join();
+	Thread1.join();
+	Thread2.join();
+	Thread3.join();
 }
 
 void ImageDrawDig::MakeImageWhite()

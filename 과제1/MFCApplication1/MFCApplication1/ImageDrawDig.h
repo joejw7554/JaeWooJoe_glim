@@ -40,6 +40,8 @@ public:
 	void ResetProcess();
 	void GenerateRandomDots();
 
+	void DrawResultCircle(int InColor, CRect InRect);// 멀티쓰레딩 처리용 함수
+
 private:
 	void CreateImage();
 
@@ -71,7 +73,9 @@ private:
 	void RedrawCircle();
 	void EraseCircle();
 
-
+	void MultiThreadProcess(int InColor);
+	
+	
 
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
